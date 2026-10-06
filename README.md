@@ -8,8 +8,8 @@
   唯一事实源，发布时替换占位符后整体粘贴；命令行必须与
   InstallerCliContractTest 契约一致——安装器参数即 deploy 参数，官方命令
   不带 deploy 字，兼容「installer.sh deploy --version …」等价写法）。
-  占位符：1.0.2 与 1.0.2（V1.0.2 起两者恒同值，
-  安装器版本与产品五源版本统一）、f757e0012344c7d9b751cd67511b3a6d9ff2f8993abc59eb1ac3eb9415da9a47（build-installer.sh
+  占位符：1.0.3 与 1.0.3（V1.0.2 起两者恒同值，
+  安装器版本与产品五源版本统一）、f1ddcede322bdea1ee86f251f03e1e15112dcc9e7fbb144b14d56fcf374be837（build-installer.sh
   输出的整文件 SHA256）。
 -->
 
@@ -18,11 +18,11 @@
 在一台全新公网 Ubuntu 服务器上执行（先落盘校验，绝不 `curl | bash`）：
 
 ```bash
-curl -fL https://github.com/Gicce/zhongjia-wms-installer/releases/download/v1.0.2/zjwms-installer.sh -o /tmp/zjwms-installer.sh && echo 'f757e0012344c7d9b751cd67511b3a6d9ff2f8993abc59eb1ac3eb9415da9a47  /tmp/zjwms-installer.sh' | sha256sum -c - && sudo bash /tmp/zjwms-installer.sh --version 1.0.2
+curl -fL https://github.com/Gicce/zhongjia-wms-installer/releases/download/v1.0.3/zjwms-installer.sh -o /tmp/zjwms-installer.sh && echo 'f1ddcede322bdea1ee86f251f03e1e15112dcc9e7fbb144b14d56fcf374be837  /tmp/zjwms-installer.sh' | sha256sum -c - && sudo bash /tmp/zjwms-installer.sh --version 1.0.3
 ```
 
 > 兼容写法：在安装器后先写 deploy 子命令再跟参数（形如
-> `zjwms-installer.sh deploy --version 1.0.2`）与上面完全等价——
+> `zjwms-installer.sh deploy --version 1.0.3`）与上面完全等价——
 > 安装器会自动摘除多余的 deploy，不会透传成 `zjwms deploy deploy`。
 
 安装器为单文件自解压脚本，内嵌部署工具链（SHA256 防篡改校验），自动完成：
@@ -53,8 +53,9 @@ bash zjwms-installer.sh --self-check
 
 | 版本 | 说明 |
 |---|---|
-| v1.0.2 | 当前版本（Fresh Baseline 空库自动首装 + 首个管理员一次性口令 + CLI 契约修复：官方命令不再带 deploy 子命令，同时兼容该写法） |
-| v1.0.1 | 首发版本。公开命令多带 deploy 子命令会透传成 `zjwms deploy deploy` 立即失败——请改用 v1.0.2 及以上 |
+| v1.0.3 | 当前版本（修复 Docker RepoDigests 校验形态缺陷：公网首装在镜像 exact-digest 拉取成功后不再被 FAILED_STEP=MYSQL_IMAGE_VERIFY 误杀；本地校验统一 canonical repository@digest，pull/run 引用不变） |
+| v1.0.2 | CLI 契约修复：官方命令不再带 deploy 子命令（同时兼容该写法）。存在 RepoDigests 校验形态缺陷——公网首装镜像拉取成功后仍可能被 MYSQL_IMAGE_VERIFY 误杀——请改用 v1.0.3 |
+| v1.0.1 | 首发版本。公开命令多带 deploy 子命令会透传成 `zjwms deploy deploy` 立即失败——请改用 v1.0.3 及以上 |
 
 Release 资产一经发布不再改动；新版本只新增 tag。V1.0.2 起安装器版本与
 WMS 产品版本统一。
