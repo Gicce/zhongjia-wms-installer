@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 # =============================================================================
-# 中佳 WMS 一键安装器 v1.0.1（由 deploy/v2/build/build-installer.sh 生成）
+# 中佳 WMS 一键安装器 v1.0.2（由 deploy/v2/build/build-installer.sh 生成）
 #
 # 用法（先落盘校验，绝不 curl | bash）：
 #   curl -fsSL <官方URL>/zjwms-installer.sh        -o /tmp/zjwms-installer.sh
 #   curl -fsSL <官方URL>/zjwms-installer.sh.sha256 -o /tmp/zjwms-installer.sha256
 #   (cd /tmp && sha256sum -c zjwms-installer.sha256)
 #   sudo bash /tmp/zjwms-installer.sh [deploy 参数...]
+#   sudo bash /tmp/zjwms-installer.sh --version 1.0.2
+#   sudo bash /tmp/zjwms-installer.sh deploy --version 1.0.2
+#       （等价写法：首参恰为字面 deploy 时自动摘除一次，
+#         绝不透传成 zjwms deploy deploy）
 #
 #   bash zjwms-installer.sh --self-check   仅解压并校验载荷，不部署
 #
 # 本文件 = 引导器 + 内嵌 deploy/v2 工具链（SHA256 固定）。执行时解压工具链、
-# 校验哈希后原样转入 zjwms deploy；GitHub Token 在部署过程中按提示输入。
+# 校验哈希后转入 zjwms deploy；GitHub Token 在部署过程中按提示输入。
 # =============================================================================
-ZJWMS_INSTALLER_VERSION="1.0.1"
+ZJWMS_INSTALLER_VERSION="1.0.2"
 ZJWMS_PAYLOAD_SHA256="c587bad6b4f9b6da4ec44353c32a43af976c78989a2c16089d9e05187259b6dc"
 
 set -euo pipefail
@@ -23,7 +27,10 @@ log() { printf '[zjwms-installer] %s\n' "$*"; }
 
 ZJWMS_TMP=""
 
-cleanup() { [ -n "$ZJWMS_TMP" ] && rm -rf "$ZJWMS_TMP"; }
+# 注意必须用 if 形式：`[ -n "$ZJWMS_TMP" ] && rm -rf …` 在 -h 提前退出
+# （ZJWMS_TMP 为空）时以状态 1 结束，EXIT trap 会把整个安装器的退出码
+# 覆盖成 1（v1.0.1 的 -h 即由此返回 1，v1.0.1-1 修复）
+cleanup() { if [ -n "$ZJWMS_TMP" ]; then rm -rf "$ZJWMS_TMP"; fi; }
 trap cleanup EXIT
 
 extract_payload() {
@@ -42,7 +49,7 @@ extract_payload() {
 
 case "${1:-}" in
   -h|--help|help)
-    sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '3,18p' "$0" | sed 's/^# \{0,1\}//'
     exit 0 ;;
   --self-check)
     ZJWMS_TMP="$(mktemp -d /tmp/zjwms-installer.XXXXXX)"
@@ -60,7 +67,14 @@ fi
 ZJWMS_TMP="$(mktemp -d /tmp/zjwms-install.XXXXXX)"
 extract_payload "$ZJWMS_TMP"
 log "工具链就绪（v$ZJWMS_INSTALLER_VERSION，payload SHA256 $ZJWMS_PAYLOAD_SHA256）"
-log "转入 zjwms deploy（参数原样透传）……"
+# CLI 契约（单层语义，2026-10-07 公网 E2E 实证修复）：安装器本身就是 deploy
+# 安装器，参数即 deploy 参数，子命令由下方调用补齐；兼容已发布 v1.0.1 文档
+# 写法「installer.sh deploy --version …」——首参恰为字面 deploy 时摘除一次。
+# 双 deploy 透传曾触发 zjwms「deploy 未知参数：deploy」即死，绝不重演。
+if [ "${1:-}" = "deploy" ]; then
+  shift
+fi
+log "转入 zjwms deploy……"
 set +e
 bash "$ZJWMS_TMP/deploy/v2/zjwms" deploy "$@"
 rc=$?
