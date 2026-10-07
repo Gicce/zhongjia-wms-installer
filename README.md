@@ -12,7 +12,7 @@
   官方命令的 wc -l == 1 + grep -qxE 双守卫会拒绝执行）。
   命令行契约与 InstallerCliContractTest 锁定一致：安装器参数即 deploy
   参数；Direct 模式零参数（= Latest 默认）；Proxy 模式唯一参数
-  --proxy "$PROXY"。1.0.5 仅用于版本简史表。
+  --proxy "$PROXY"。1.0.6 仅用于版本简史表。
 -->
 
 ## 一条命令首装（Ubuntu 22.04 / 24.04）
@@ -78,7 +78,7 @@ bash zjwms-installer.sh --self-check
 
 | 版本 | 说明 |
 |---|---|
-| Latest（当前 v1.0.5） | Latest 默认安装 + HTTP 代理模式 + 零副作用网络预检（GHCR Blob/CDN 数据面实测通过才动系统） |
+| Latest（当前 v1.0.6） | Latest 默认安装 + HTTP 代理模式 + 零副作用网络预检（GHCR Blob/CDN 数据面实测通过才动系统）+ 工具链在线升级（--toolchain-only）与 update 三阶段状态提交修复 |
 | v1.0.3 | 已过时：GHCR Blob/CDN 数据面直连不稳定的网络下，`docker pull` layer 传输超时导致首装失败（`FAILED_STEP=MYSQL_IMAGE_FETCH`）且无代理出路——请改用最新版 |
 | v1.0.2 | Docker RepoDigests 校验修复（digest 拉取成功后被本地判定误杀的问题） |
 | v1.0.1 | 首发版本。公开命令多带 deploy 子命令会透传成 `zjwms deploy deploy` 立即失败——请改用最新版 |
