@@ -1,1 +1,1 @@
-f1ddcede322bdea1ee86f251f03e1e15112dcc9e7fbb144b14d56fcf374be837  zjwms-installer.sh
+b8965cab2b663cb1aca4052b6865ffe521d48f0d69a369c7bef5179cb20745d4  zjwms-installer.sh
